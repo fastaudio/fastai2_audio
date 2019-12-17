@@ -1,0 +1,25 @@
+name: fastai2_audio
+channels:
+- fastai
+- pytorch
+- conda-forge
+- defaults
+dependencies:
+- jupyter
+- pytorch>=1.2.0
+- torchvision
+- matplotlib
+- pandas
+- requests
+- pyyaml
+- fastprogress>=0.1.22
+- pillow
+- python>=3.6
+- pip
+- scikit-learn
+- scipy
+- spacy
+- torchaudio>=0.3
+- librosa
+- pip:
+    - fastai2
