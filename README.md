@@ -45,23 +45,3 @@ We are looking for contributors of all skill levels. If you don't have time to c
 
 ### How to contribute
 Create issues, write documentation, suggest/add features, submit PRs. We are open to anything. A good first step would be posting in the [v2 audio thread](https://forums.fast.ai/t/fastai-v2-audio/53535) introducing yourself 
-<div class="codecell" markdown="1">
-<div class="input_area" markdown="1">
-
-```
-1+1
-```
-
-</div>
-<div class="output_area" markdown="1">
-
-
-
-
-    2
-
-
-
-</div>
-
-</div>

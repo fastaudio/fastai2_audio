@@ -1,7 +1,8 @@
 {
   "fastai2_audio": {
     "Overview": "/",
-    "Title": "/tutorial",
-    "Data Augmentation for Audio": "/augment"
+    "Core": "/core",
+    "Data Augmentation for Audio": "/augment",
+    "Title": "/tutorial"
   }
 }
