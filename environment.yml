@@ -21,5 +21,6 @@ dependencies:
 - spacy
 - torchaudio>=0.3
 - librosa
+- colorednoise
 - pip:
     - fastai2
