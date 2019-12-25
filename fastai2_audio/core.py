@@ -17,10 +17,6 @@ from torchaudio.transforms import Spectrogram, AmplitudeToDB, MFCC
 from librosa.display import specshow, waveplot
 
 #Cell
-_all_ = ['AudioGetter', 'get_audio_files', 'AudioItem', 'OpenAudio', 'AudioSpectrogram', 'AudioToSpec',
-        'SpectrogramConfig', 'AudioConfig', 'audio_extensions']
-
-#Cell
 audio_extensions = tuple(str.lower(k) for k, v in mimetypes.types_map.items() if v.startswith('audio/'))
 
 #Cell
