@@ -10,11 +10,14 @@ entries:
       title: Overview
       url: /
     - output: web,pdf
-      title: Title
-      url: /tutorial
+      title: Core
+      url: /core
     - output: web,pdf
       title: Data Augmentation for Audio
       url: /augment
+    - output: web,pdf
+      title: Title
+      url: /tutorial
     output: web
     title: fastai2_audio
   output: web
