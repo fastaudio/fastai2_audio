@@ -20,7 +20,7 @@ dependencies:
 - scipy
 - spacy
 - torchaudio>=0.3
+- librosa
 - pip:
-    - librosa
     - fastai2
     - colorednoise
