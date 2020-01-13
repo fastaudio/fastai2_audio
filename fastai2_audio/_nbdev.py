@@ -40,7 +40,7 @@ index = {"audio_extensions": "00_core.ipynb",
 modules = ["core.py",
            "augment.py"]
 
-doc_url = "https://rbracco.github.io/fastai2_audio/"
+doc_url = "https://github.com/rbracco/fastai2_audio/fastai2_audio/"
 
 git_url = "https://github.com/rbracco/fastai2_audio/tree/master/"
 
