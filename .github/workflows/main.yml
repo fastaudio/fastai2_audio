@@ -30,4 +30,8 @@ jobs:
         if [ -n "$(nbdev_diff_nbs)" ]; then echo -e "!!! Detected difference between the notebooks and the library"; false; fi
     - name: Run tests
       run: |
+        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
+        bash ~/miniconda.sh -b -p $HOME/miniconda
+        $HOME/miniconda/conda install -f environment.yaml
+        $HOME/miniconda/conda activate fastai2_audio
         nbdev_test_nbs
