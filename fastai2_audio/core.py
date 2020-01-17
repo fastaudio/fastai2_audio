@@ -43,6 +43,11 @@ class AudioTensor(TensorBase):
     def create(cls, fn, **kwargs):
         sig, sr = torchaudio.load(fn, **kwargs)
         return cls(sig, sr=sr)
+
+    @classmethod
+    def create_with_signal(cls, sig, sr, **kwargs):
+        return cls(sig, sr=sr)
+
     @property
     def sr(self): return self.get_meta('sr')
 
@@ -203,7 +208,7 @@ class AudioToSpec(Transform):
     def encodes(self, x:AudioTensor):
         settings = dict(self.__dict__)
         settings.update({'sr':x.sr, 'nchannels':x.nchannels})
-        return AudioSpectrogram.create(self.transformer(x).flip(1).detach(), settings=settings)
+        return AudioSpectrogram.create(self.transformer(x).detach(), settings=settings)
 
     def add_func(self, func, kwargs):
         func_args = get_usable_kwargs(func, kwargs, [])
