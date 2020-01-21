@@ -44,10 +44,6 @@ class AudioTensor(TensorBase):
         sig, sr = torchaudio.load(fn, **kwargs)
         return cls(sig, sr=sr)
 
-    @classmethod
-    def create_with_signal(cls, sig, sr, **kwargs):
-        return cls(sig, sr=sr)
-
     @property
     def sr(self): return self.get_meta('sr')
 
