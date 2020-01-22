@@ -8,7 +8,7 @@ index = {"audio_extensions": "00_core.ipynb",
          "URLs.SPEAKERS10": "00_core.ipynb",
          "URLs.SPEAKERS250": "00_core.ipynb",
          "URLs.ESC50": "00_core.ipynb",
-         "AudioItem": "00_core.ipynb",
+         "AudioTensor": "00_core.ipynb",
          "show_audio_signal": "00_core.ipynb",
          "OpenAudio": "00_core.ipynb",
          "get_usable_kwargs": "00_core.ipynb",
@@ -40,7 +40,7 @@ index = {"audio_extensions": "00_core.ipynb",
 modules = ["core.py",
            "augment.py"]
 
-doc_url = "https://rbracco.github.io/fastai2_audio/fastai2_audio/"
+doc_url = "https://rbracco.github.io/fastai2_audio/"
 
 git_url = "https://github.com/rbracco/fastai2_audio/tree/master/"
 
