@@ -37,18 +37,7 @@ URLs.SPEAKERS250 = 'https://public-datasets.fra1.digitaloceanspaces.com/250-spea
 URLs.ESC50 = 'https://github.com/karoldvl/ESC-50/archive/master.zip'
 
 # Cell
-<<<<<<< HEAD
-class AudioItem(tuple):
-    def show(self, ctx=None, **kwargs):
-        "Show image using `merge(self._show_args, kwargs)`"
-        print(f"File: {self.path}")
-        self.hear()
-        show_audio_signal(self, ctx=ctx, **kwargs)
-        plt.show()
-
-=======
 class AudioTensor(TensorBase):
->>>>>>> master
     @classmethod
     @delegates(torchaudio.load, keep=True)
     def create(cls, fn, **kwargs):
