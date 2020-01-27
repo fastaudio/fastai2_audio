@@ -19,6 +19,7 @@ from scipy.signal import resample_poly
 from scipy.ndimage.interpolation import shift
 import librosa
 import colorednoise as cn
+from fastprogress import progress_bar as pb
 
 # Cell
 mk_class('RemoveType', **{o:o.lower() for o in ['Trim', 'All', 'Split']},
@@ -39,36 +40,37 @@ def _merge_splits(splits, pad):
     return np.stack(merged)
 
 def RemoveSilence(remove_type=RemoveType.Trim, threshold=20, pad_ms=20):
-    def _inner(ai:AudioItem)->AudioItem:
+    def _inner(ai:AudioTensor)->AudioTensor:
         '''Split signal at points of silence greater than 2*pad_ms '''
         if remove_type is None: return ai
         padding = int(pad_ms/1000*ai.sr)
         if(padding > ai.nsamples): return ai
-        actual = ai.sig.clone()
-        splits = split(actual.numpy(), top_db=threshold, hop_length=padding)
+        splits = split(ai.numpy(), top_db=threshold, hop_length=padding)
         if remove_type == "split":
-            sig =  [actual[:,(max(a-padding,0)):(min(b+padding,ai.nsamples))]
+            sig =  [ai[:,(max(a-padding,0)):(min(b+padding,ai.nsamples))]
                     for (a, b) in _merge_splits(splits, padding)]
         elif remove_type == "trim":
-            sig = [actual[:,(max(splits[0, 0]-padding,0)):splits[-1, -1]+padding]]
+            sig = [ai[:,(max(splits[0, 0]-padding,0)):splits[-1, -1]+padding]]
         elif remove_type == "all":
-            sig = [torch.cat([actual[:,(max(a-padding,0)):(min(b+padding,ai.nsamples))]
+            sig = [torch.cat([ai[:,(max(a-padding,0)):(min(b+padding,ai.nsamples))]
                               for (a, b) in _merge_splits(splits, padding)], dim=1)]
         else:
             raise ValueError(f"Valid options for silence removal are None, 'split', 'trim', 'all' not '{remove_type}'.")
-        return AudioItem((*sig, ai.sr, ai.path))
+        ai.data = torch.cat(sig, dim=-1)
+        return ai
     return _inner
 
 # Cell
 def Resample(sr_new):
-    def _inner(ai:AudioItem)->AudioItem:
+    def _inner(ai:AudioTensor)->AudioTensor:
         '''Resample using faster polyphase technique and avoiding FFT computation'''
-        if(ai.sr == sr_new): return AudioItem(ai)
-        sig_np = ai.sig.numpy()
+        if(ai.sr == sr_new): return ai
+        sig_np = ai.numpy()
         sr_gcd = math.gcd(ai.sr, sr_new)
         resampled = resample_poly(sig_np, int(sr_new/sr_gcd), int(ai.sr/sr_gcd), axis=-1)
-        resampled = resampled.astype(np.float32)
-        return AudioItem((torch.from_numpy(resampled), sr_new, ai.path))
+        ai.data = torch.from_numpy(resampled.astype(np.float32))
+        ai.sr = sr_new
+        return ai
     return _inner
 
 # Cell
@@ -77,19 +79,18 @@ mk_class('AudioPadType', **{o:o.lower() for o in ['Zeros', 'Zeros_After', 'Repea
 
 # Cell
 def CropSignal(duration, pad_mode=AudioPadType.Zeros):
-    def _inner(ai: AudioItem)->AudioItem:
+    def _inner(ai: AudioTensor)->AudioTensor:
         '''Crops signal to be length specified in ms by duration, padding if needed'''
-        sig = ai.sig.clone()
+        sig = ai.data
         orig_samples = ai.nsamples
         crop_samples = int((duration/1000)*ai.sr)
-        if orig_samples < crop_samples:
-            sig_pad = _tfm_pad_signal(sig, crop_samples, pad_mode=pad_mode)
-            return AudioItem((sig_pad, ai.sr, ai.path))
-        elif orig_samples == crop_samples: return AudioItem((sig, ai.sr, ai.path))
+        if orig_samples == crop_samples: return ai
+        elif orig_samples < crop_samples:
+            ai.data = _tfm_pad_signal(sig, crop_samples, pad_mode=pad_mode)
         else:
             crop_start = random.randint(0, int(orig_samples-crop_samples))
-            sig_crop = sig[:,crop_start:crop_start+crop_samples]
-            return AudioItem((sig_crop, ai.sr, ai.path))
+            ai.data = sig[:,crop_start:crop_start+crop_samples]
+        return ai
     return _inner
 
 # Cell
@@ -120,10 +121,10 @@ class SignalShifter(RandTransform):
         self.shift_factor = random.uniform(-1, 1)
         if self.direction != 0: self.shift_factor = self.direction*abs(self.shift_factor)
 
-    def encodes(self, ai:AudioItem):
+    def encodes(self, ai:AudioTensor):
         if self.max_time is None: s = self.shift_factor*self.max_pct*ai.nsamples
         else:                     s = self.shift_factor*self.max_time*ai.sr
-        ai.sig[:] = shift_signal(ai.sig, int(s), self.roll)
+        ai.data = shift_signal(ai.data, int(s), self.roll)
         return ai
 
     def encodes(self, sg:AudioSpectrogram):
@@ -137,18 +138,19 @@ mk_class('NoiseColor', **{o:i-2 for i,o in enumerate(['Violet', 'Blue', 'White',
 
 # Cell
 def AddNoise(noise_level=0.05, color=NoiseColor.White):
-    def _inner(ai: AudioItem)->AudioItem:
+    def _inner(ai: AudioTensor)->AudioTensor:
         # if it's white noise, implement our own for speed
-        if color==0: noise = torch.randn_like(ai.sig)
+        if color==0: noise = torch.randn_like(ai.data)
         else:        noise = torch.from_numpy(cn.powerlaw_psd_gaussian(exponent=color, size=ai.nsamples)).float()
-        scaled_noise = noise * ai.sig.abs().mean() * noise_level
-        return AudioItem((ai.sig + scaled_noise, ai.sr, ai.path))
+        scaled_noise = noise * ai.data.abs().mean() * noise_level
+        ai.data += scaled_noise
+        return ai
     return _inner
 
 # Cell
 @patch
-def apply_gain(ai:AudioItem, gain):
-    ai.sig[:] *= gain
+def apply_gain(ai:AudioTensor, gain):
+    ai.data *= gain
     return ai
 
 # Cell
@@ -161,14 +163,14 @@ class ChangeVolume(RandTransform):
         super().before_call(b, split_idx)
         self.gain = random.uniform(self.lower, self.upper)
 
-    def encodes(self, ai:AudioItem): return apply_gain(ai, self.gain)
+    def encodes(self, ai:AudioTensor): return apply_gain(ai, self.gain)
 
 # Cell
 @patch
-def cutout(ai:AudioItem, cut_pct):
+def cutout(ai:AudioTensor, cut_pct):
     mask = torch.zeros(int(ai.nsamples*cut_pct))
     mask_start = random.randint(0,ai.nsamples-len(mask))
-    ai.sig[:,mask_start:mask_start+len(mask)] = mask
+    ai.data[:,mask_start:mask_start+len(mask)] = mask
     return ai
 
 # @patch
@@ -184,13 +186,13 @@ class SignalCutout(RandTransform):
         super().before_call(b, split_idx)
         self.cut_pct = random.uniform(0, self.max_cut_pct)
 
-    def encodes(self, ai:AudioItem): return cutout(ai, self.cut_pct)
+    def encodes(self, ai:AudioTensor): return cutout(ai, self.cut_pct)
 
 # Cell
 @patch
-def lose_signal(ai:AudioItem, loss_pct):
-    mask = (torch.rand_like(ai.sig[0])>loss_pct).float()
-    ai.sig[...,:] *= mask
+def lose_signal(ai:AudioTensor, loss_pct):
+    mask = (torch.rand_like(ai.data[0])>loss_pct).float()
+    ai.data[...,:] *= mask
     return ai
 
 # Cell
@@ -203,65 +205,34 @@ class SignalLoss(RandTransform):
         super().before_call(b, split_idx)
         self.loss_pct = random.uniform(0, self.max_loss_pct)
 
-    def encodes(self, ai:AudioItem): return lose_signal(ai, self.loss_pct)
-
-
-# #export
-# # Code adjusted from orig v1 fastai audio by Zack Caceres, Thom Mackey, and Stefano Giomo
-# def SignalDrop(cut_pct=0.15):
-#     def _inner(ai: AudioItem)->AudioItem:
-#         """Randomly replaces amplitude of signal with 0. Simulates analog info loss"""
-#         copy = ai.sig.clone()
-#         mask = (torch.rand_like(copy[0])>cut_pct).float()
-#         masked = copy * mask
-#         return AudioItem((masked, ai.sr, ai.path))
-#     return _inner
-
-# #export
-# class SignalCutout(RandTransform):
-#     def __init__(self, p=0.5, max_cut_pct=0.15):
-#         self.max_cut_pct = max_cut_pct
-#         super().__init__(p=p, as_item=True)
-
-#     def before_call(self, b, split_idx):
-#         super().before_call(b, split_idx)
-#         self.cut_pct = random.uniform(0, self.max_cut_pct)
-
-#     def encodes(self, ai:AudioItem):
-#         copy = ai.sig.clone()
-#         mask = torch.zeros(int(ai.nsamples*self.cut_pct))
-#         mask_start = random.randint(0,ai.nsamples-len(mask))
-#         copy[:,mask_start:mask_start+len(mask)] = mask
-#         return AudioItem((copy, ai.sr, ai.path))
+    def encodes(self, ai:AudioTensor): return lose_signal(ai, self.loss_pct)
 
 # Cell
 # downmixMono was removed from torchaudio, we now just take the mean across channels
 # this works for both batches and individual items
 def DownmixMono():
-    def _inner(ai: AudioItem)->AudioItem:
+    def _inner(ai: AudioTensor)->AudioTensor:
         """Randomly replaces amplitude of signal with 0. Simulates analog info loss"""
-        downmixed = ai.sig.contiguous().mean(-2).unsqueeze(-2)
-        return AudioItem((downmixed, ai.sr, ai.path))
+        downmixed = ai.data.contiguous().mean(-2).unsqueeze(-2)
+        return AudioTensor(downmixed, ai.sr)
     return _inner
 
 # Cell
 def CropTime(duration, pad_mode=AudioPadType.Zeros):
-    def _inner(spectro:AudioSpectrogram)->AudioSpectrogram:
+    def _inner(sg:AudioSpectrogram)->AudioSpectrogram:
         '''Random crops full spectrogram to be length specified in ms by crop_duration'''
-        sg = spectro.clone()
-        sr, hop = spectro.sr, spectro.hop_length
+        sr, hop = sg.sr, sg.hop_length
         w_crop = int((sr*duration)/(1000*hop))+1
         w_sg   = sg.shape[-1]
-        if   w_sg <  w_crop:
-            sg_pad = _tfm_pad_spectro(sg, w_crop, pad_mode=pad_mode)
-            return AudioSpectrogram.create(sg_pad, settings=spectro.settings)
-        elif w_sg == w_crop: return sg
+        if     w_sg == w_crop: sg_crop = sg
+        elif   w_sg <  w_crop: sg_crop = _tfm_pad_spectro(sg, w_crop, pad_mode=pad_mode)
         else:
             crop_start = random.randint(0, int(w_sg - w_crop))
             sg_crop = sg[:,:,crop_start:crop_start+w_crop]
             sg_crop.sample_start = int(crop_start*hop)
             sg_crop.sample_end   = sg_crop.sample_start + int(duration*sr)
-            return AudioSpectrogram.create(sg_crop, settings=spectro.settings)
+        sg.data = sg_crop
+        return sg
     return _inner
 
 # Cell
@@ -270,10 +241,10 @@ def _tfm_pad_spectro(sg, width, pad_mode=AudioPadType.Zeros):
     c,y,x = sg.shape
     pad_m = pad_mode.lower()
     if pad_m in ["zeros", "zeros_after"]:
-        zeros_front = random.randint(0, width-x) if pad_m == "zeros" else 0
-        pad_front = torch.zeros((c,y, zeros_front))
-        pad_back = torch.zeros((c,y, width-x-zeros_front))
-        return AudioSpectrogram(torch.cat((pad_front, sg, pad_back), 2))
+        padded = torch.zeros((c,y,width))
+        start = random.randint(0, width-x) if pad_m == "zeros" else 0
+        padded[:,:,start:start+x] = sg.data
+        return padded
     elif pad_m == "repeat":
         repeats = width//x + 1
         return sg.repeat(1,1,repeats)[:,:,:width]
@@ -282,10 +253,9 @@ def _tfm_pad_spectro(sg, width, pad_mode=AudioPadType.Zeros):
 
 # Cell
 def MaskFreq(num_masks=1, size=20, start=None, val=None, **kwargs):
-    def _inner(spectro:AudioSpectrogram)->AudioSpectrogram:
+    def _inner(sg:AudioSpectrogram)->AudioSpectrogram:
         '''Google SpecAugment time masking from https://arxiv.org/abs/1904.08779.'''
         nonlocal start
-        sg = spectro.clone()
         channel_mean = sg.contiguous().view(sg.size(0), -1).mean(-1)[:,None,None]
         mask_val = channel_mean if val is None else val
         c, y, x = sg.shape
@@ -296,17 +266,16 @@ def MaskFreq(num_masks=1, size=20, start=None, val=None, **kwargs):
                 raise ValueError(f"Start value '{start}' out of range for AudioSpectrogram of shape {sg.shape}")
             sg[:,start:start+size,:] = mask
             start = None
-        return AudioSpectrogram.create(sg, settings=spectro.settings)
+        return sg
     return _inner
 
 # Cell
 def MaskTime(num_masks=1, size=20, start=None, val=None, **kwargs):
-    def _inner(spectro:AudioSpectrogram)->AudioSpectrogram:
-        sg = spectro.clone()
-        sg = torch.einsum('...ij->...ji', sg)
-        sg = AudioSpectrogram.create(sg, settings=spectro.settings)
-        sg = MaskFreq(num_masks, size, start, val, **kwargs)(sg)
-        return AudioSpectrogram.create(torch.einsum('...ij->...ji', sg), settings=spectro.settings)
+    def _inner(sg:AudioSpectrogram)->AudioSpectrogram:
+        sg.data = torch.einsum('...ij->...ji', sg)
+        sg.data = MaskFreq(num_masks, size, start, val, **kwargs)(sg)
+        sg.data = torch.einsum('...ij->...ji', sg)
+        return sg
     return _inner
 
 # Cell
@@ -314,40 +283,39 @@ def SGRoll(max_shift_pct=0.5, direction=0, **kwargs):
     '''Shifts spectrogram along x-axis wrapping around to other side'''
     if int(direction) not in [-1, 0, 1]:
         raise ValueError("Direction must be -1(left) 0(bidirectional) or 1(right)")
-    def _inner(spectro:AudioSpectrogram)->AudioSpectrogram:
+    def _inner(sg:AudioSpectrogram)->AudioSpectrogram:
         nonlocal direction
         direction = random.choice([-1, 1]) if direction == 0 else direction
-        sg = spectro.clone()
         w = sg.shape[-1]
         roll_by = int(w*random.random()*max_shift_pct*direction)
-        sg = sg.roll(roll_by, dims=-1)
-        return AudioSpectrogram.create(sg, settings=spectro.settings)
+        sg.data = sg.roll(roll_by, dims=-1)
+        return sg
     return _inner
 
 # Cell
-def _torchdelta(mel:AudioSpectrogram, order=1, width=9):
+def _torchdelta(sg:AudioSpectrogram, order=1, width=9):
     '''Converts to numpy, takes delta and converts back to torch, needs torchification'''
-    if(mel.shape[1] < width):
+    if(sg.shape[1] < width):
         raise ValueError(f'''Delta not possible with current settings, inputs must be wider than
         {width} columns, try setting max_to_pad to a larger value to ensure a minimum width''')
-    return AudioSpectrogram(torch.from_numpy(librosa.feature.delta(mel.numpy(), order=order, width=width)))
+    return AudioSpectrogram(torch.from_numpy(librosa.feature.delta(sg.numpy(), order=order, width=width)))
 
 # Cell
 def Delta(width=9):
     td = partial(_torchdelta, width=width)
-    def _inner(spectro:AudioSpectrogram)->AudioSpectrogram:
-        new_channels = [torch.stack([c, td(c, order=1), td(c, order=2)]) for c in spectro]
-        return AudioSpectrogram.create(torch.cat(new_channels), settings=spectro.settings)
+    def _inner(sg:AudioSpectrogram)->AudioSpectrogram:
+        new_channels = [torch.stack([c, td(c, order=1), td(c, order=2)]) for c in sg]
+        sg.data = torch.cat(new_channels, dim=0)
+        return sg
     return _inner
 
 # Cell
 def TfmResize(size, interp_mode="bilinear", **kwargs):
     '''Temporary fix to allow image resizing transform'''
-    def _inner(spectro:AudioSpectrogram)->AudioSpectrogram:
+    def _inner(sg:AudioSpectrogram)->AudioSpectrogram:
         nonlocal size
         if isinstance(size, int): size = (size, size)
-        sg = spectro.clone()
         c,y,x = sg.shape
-        sg = F.interpolate(sg.unsqueeze(0), size=size, mode=interp_mode, align_corners=False).squeeze(0)
-        return AudioSpectrogram.create(sg, settings=spectro.settings)
+        sg.data = F.interpolate(sg.unsqueeze(0), size=size, mode=interp_mode, align_corners=False).squeeze(0)
+        return sg
     return _inner
