@@ -2,7 +2,7 @@
 
 __all__ = ['audio_extensions', 'get_audio_files', 'AudioGetter', 'AudioTensor', 'show_audio_signal', 'OpenAudio',
            'AudioSpectrogram', 'show_spectrogram', 'AudioToSpec', 'fill_pipeline', 'SpectrogramTransformer',
-           'warn_unused', 'get_usable_kwargs', 'AudioToSpec', 'AudioToMFCC', 'config_from_func', 'AudioConfig']
+           'warn_unused', 'get_usable_kwargs', 'AudioToMFCC', 'config_from_func', 'AudioConfig']
 
 # Cell
 from fastai2.torch_basics import *
@@ -237,69 +237,6 @@ def get_usable_kwargs(func, kwargs, exclude=None):
     defaults = {k:v.default for k, v in inspect.signature(func).parameters.items() if k not in exclude}
     usable = {k:v for k,v in kwargs.items() if k in defaults}
     return {**defaults, **usable}
-
-# Cell
-#export
-@delegates(_GenSpec.__init__)
-@delegates(_GenMelSpec.__init__, keep=True)
-@delegates(_ToDB.__init__, keep=True)
-class AudioToSpec(Transform):
-    def __init__(self, mel=True, to_db=True, **kwargs):
-        self._validate_kwargs(mel, to_db, kwargs)
-        transforms = L()
-        kwargs = self.add_local_defaults(dict(kwargs))
-        if mel:   transforms += self.add_func(_GenMelSpec, kwargs)
-        else:     transforms += self.add_func(_GenSpec, kwargs)
-        if to_db: transforms += self.add_func(_ToDB, kwargs)
-        #would it be better to use Pipeline here than nn.Sequential?
-        self.transformer = nn.Sequential(*transforms)
-        store_attr(self, 'to_db,mel')
-        self.__dict__.update(kwargs)
-
-    @classmethod
-    def from_cfg(cls, audio_cfg):
-        cfg = asdict(audio_cfg) if is_dataclass(audio_cfg) else audio_cfg
-        return cls(**cfg)
-
-    def encodes(self, x:AudioTensor):
-        settings = dict(self.__dict__)
-        settings.update({'sr':x.sr, 'nchannels':x.nchannels})
-        return AudioSpectrogram.create(self.transformer(x).detach(), settings=settings)
-
-    def add_func(self, func, kwargs):
-        func_args = get_usable_kwargs(func, kwargs, [])
-        self.__dict__.update(func_args)
-        return func(**func_args)
-
-    # Torchaudio overrides None values internally for these objects, their logic is copied here for now
-    # so that the settings stored in the spectrogram accurately reflect what is happening.
-    # Also we override their default n_fft of 400 because it is very bad if n_mels > 64
-    def add_local_defaults(self, kwargs):
-        if "n_fft" not in kwargs or kwargs["n_fft"] is None:            kwargs["n_fft"] = 1024
-        if "win_length" not in kwargs or kwargs["win_length"] is None:  kwargs["win_length"] = kwargs["n_fft"]
-        if "hop_length" not in kwargs or kwargs["hop_length"] is None:  kwargs["hop_length"] = int(kwargs["win_length"]/2)
-        return kwargs
-
-    @staticmethod
-    def _validate_kwargs(mel, to_db, kwargs):
-        funcs = [_GenMelSpec, _GenSpec, _ToDB]
-        all_args = set().union(*map(lambda x: set(inspect.signature(x).parameters.keys()), funcs))
-        for k, v in kwargs.items():
-            if k not in all_args:
-                warnings.warn(f"{k} is not a valid arg name, usable kwargs are {all_args}")
-        if mel:       AudioToSpec._warn_kwargs(_GenMelSpec, _GenSpec, kwargs)
-        else  :       AudioToSpec._warn_kwargs(_GenSpec, _GenMelSpec, kwargs)
-        if not to_db: AudioToSpec._warn_kwargs(noop, _ToDB, kwargs)
-
-    @staticmethod
-    def _warn_kwargs(used, unused, kwargs):
-        def get_bad_args(f1, f2):
-            a1, a2 = map(lambda x: set(inspect.signature(x).parameters.keys()), (f1, f2))
-            return a2 - a1
-        bad_args = get_bad_args(used, unused)
-        for k, v in kwargs.items():
-            if(k in bad_args):
-                warnings.warn(f"{k} passed in but unused, your settings use {used} not {unused}")
 
 # Cell
 @delegates(_GenMFCC.__init__)

@@ -24,6 +24,7 @@ index = {"audio_extensions": "00_core.ipynb",
          "RemoveSilence": "01_augment.ipynb",
          "Resample": "01_augment.ipynb",
          "CropSignal": "01_augment.ipynb",
+         "shift_signal": "01_augment.ipynb",
          "SignalShifter": "01_augment.ipynb",
          "AddNoise": "01_augment.ipynb",
          "AudioTensor.apply_gain": "01_augment.ipynb",
@@ -38,7 +39,8 @@ index = {"audio_extensions": "00_core.ipynb",
          "MaskTime": "01_augment.ipynb",
          "SGRoll": "01_augment.ipynb",
          "Delta": "01_augment.ipynb",
-         "TfmResize": "01_augment.ipynb"}
+         "TfmResize": "01_augment.ipynb",
+         "AudioBlock": "01_augment.ipynb"}
 
 modules = ["core.py",
            "augment.py"]
