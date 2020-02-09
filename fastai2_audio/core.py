@@ -32,7 +32,7 @@ def AudioGetter(suf='', recurse=True, folders=None):
     return _inner
 
 # Cell
-URLs.SPEAKERS10 = 'http://www.openslr.org/resources/45/ST-AEDS-20180100_1-OS'
+URLs.SPEAKERS10 = 'http://www.openslr.org/resources/45/ST-AEDS-20180100_1-OS.tgz'
 URLs.SPEAKERS250 = 'https://public-datasets.fra1.digitaloceanspaces.com/250-speakers.tar'
 URLs.ESC50 = 'https://github.com/karoldvl/ESC-50/archive/master.zip'
 
