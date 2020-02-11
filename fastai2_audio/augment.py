@@ -16,10 +16,10 @@ from torch.distributions.bernoulli import Bernoulli
 from librosa.effects import split
 from dataclasses import asdict
 from scipy.signal import resample_poly
+
 from scipy.ndimage.interpolation import shift
 import librosa
 import colorednoise as cn
-from fastprogress import progress_bar as pb
 
 # Cell
 mk_class('RemoveType', **{o:o.lower() for o in ['Trim', 'All', 'Split']},
