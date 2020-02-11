@@ -39,7 +39,7 @@ URLs.ESC50 = 'https://github.com/karoldvl/ESC-50/archive/master.zip'
 # Cell
 def tar_extract_at_filename(fname, dest):
     "Extract `fname` to `dest`/`fname`.name folder using `tarfile`"
-    dest = Path(dest)/Path(f).with_suffix('').name
+    dest = Path(dest)/Path(fname).with_suffix('').name
     tarfile.open(fname, 'r:gz').extractall(dest)
 
 # Cell
