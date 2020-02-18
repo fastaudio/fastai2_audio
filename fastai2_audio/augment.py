@@ -2,10 +2,9 @@
 
 __all__ = ['RemoveSilence', 'Resample', 'CropSignal', 'shift_signal', 'SignalShifter', 'AddNoise', 'ChangeVolume',
            'SignalCutout', 'SignalLoss', 'DownmixMono', 'CropTime', 'MaskFreq', 'MaskTime', 'SGRoll', 'Delta',
-           'TfmResize', 'AudioBlock']
+           'TfmResize']
 
 # Cell
-from fastai2.torch_basics import *
 from fastai2.data.all import *
 from .core import *
 from fastai2.vision.augment import *
@@ -334,6 +333,3 @@ def TfmResize(size, interp_mode="bilinear", **kwargs):
         sg.data = F.interpolate(sg.unsqueeze(0), size=size, mode=interp_mode, align_corners=False).squeeze(0)
         return sg
     return _inner
-
-# Cell
-def AudioBlock(cls=AudioTensor): return TransformBlock(type_tfms=cls.create, batch_tfms=IntToFloatTensor)
