@@ -18,7 +18,8 @@ summary: "An audio module for v2 of fastai. We want to help you build audio mach
 -->
 
 <div class="container" id="notebook-container">
-    
+    {% raw %}
+        
 <div class="cell border-box-sizing code_cell rendered">
 
 </div>
@@ -32,17 +33,16 @@ summary: "An audio module for v2 of fastai. We want to help you build audio mach
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>In the future we will offer conda and pip installs, but as the code is rapidly changing, we recommend that only those interested in contributing and experimenting install for now. Everyone else should use <a href="https://github.com/mogwai/fastai_audio">Fastai audio v1</a></p>
 <p>To install:</p>
-<ol>
-<li>Fork this repo (optional)</li>
-<li>Clone the repo or your fork</li>
-<li>pip install packaging</li>
-<li>pip install -e .</li>
-</ol>
-<p>If you plan on contributing to the library, the following additional steps are needed</p>
-<ol>
-<li>pip install nbdev</li>
-<li>nbdev_install_git_hooks</li>
-</ol>
+
+<pre><code>pip install packaging
+pip install git+https://github.com/rbracco/fastai2_audio.git</code></pre>
+<p>If you plan on contributing to the library instead, you will need to do a editable install:</p>
+
+<pre><code>pip install packaging nbdev --upgrade
+git clone https://github.com/rbracco/fastai2_audio
+cd fastai2_audio
+nbdev_install_git_hooks
+pip install -e ".[dev]"</code></pre>
 <p>The final step sets up git hooks, which clean up the notebooks to remove the extraneous stuff stored in the notebooks (e.g. which cells you ran) which causes unnecessary merge conflicts.</p>
 <p>Before submitting a PR, check that the local library and notebooks match. The script <code>nbdev_diff_nbs</code> can let you know if there is a difference between the local library and the notebooks.</p>
 <ul>
@@ -68,6 +68,7 @@ summary: "An audio module for v2 of fastai. We want to help you build audio mach
 </div>
 </div>
 </div>
+    {% endraw %}
 </div>
  
 
