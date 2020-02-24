@@ -37,6 +37,7 @@ def AudioGetter(suf='', recurse=True, folders=None):
 # Cell
 URLs.SPEAKERS10 = 'http://www.openslr.org/resources/45/ST-AEDS-20180100_1-OS.tgz'
 URLs.SPEAKERS250 = 'https://public-datasets.fra1.digitaloceanspaces.com/250-speakers.tar'
+URLs.DIGITS = 'https://public-datasets.fra1.cdn.digitaloceanspaces.com/recordings.tar.gz'
 URLs.ESC50 = 'https://github.com/karoldvl/ESC-50/archive/master.zip'
 
 # Cell
@@ -50,7 +51,12 @@ class AudioTensor(TensorBase):
     @classmethod
     @delegates(torchaudio.load, keep=True)
     def create(cls, fn, **kwargs):
-        sig, sr = torchaudio.load(fn, **kwargs)
+        try:
+            sig, sr = torchaudio.load(fn, **kwargs)
+        except RuntimeError as e:
+            print(e)
+            print(fn)
+            raise e
         return cls(sig, sr=sr)
 
     @property
