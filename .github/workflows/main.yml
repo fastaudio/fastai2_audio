@@ -17,6 +17,7 @@ jobs:
           ${{ runner.os }}-pip-
     - name: Install the library
       run: |
+        sudo apt-get update
         sudo apt-get install libsndfile1
         pip install nbdev jupyter
         pip install -e .
