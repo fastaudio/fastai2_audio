@@ -24,12 +24,12 @@ audio_extensions = tuple(str.lower(k) for k, v in mimetypes.types_map.items() if
 
 # Cell
 def get_audio_files(path, recurse=True, folders=None):
-    "Get image files in `path` recursively, only in `folders`, if specified."
+    "Get audio files in `path` recursively, only in `folders`, if specified."
     return get_files(path, extensions=audio_extensions, recurse=recurse, folders=folders)
 
 # Cell
 def AudioGetter(suf='', recurse=True, folders=None):
-    "Create `get_image_files` partial function that searches path suffix `suf` and passes along `kwargs`, only in `folders`, if specified."
+    "Create `get_audio_files` partial function that searches path suffix `suf` and passes along `kwargs`, only in `folders`, if specified."
     def _inner(o, recurse=recurse, folders=folders):
         return get_audio_files(o/suf, recurse, folders)
     return _inner
@@ -72,7 +72,7 @@ class AudioTensor(TensorBase):
     def hear(self):
         display(Audio(self, rate=self.sr))
     def show(self, ctx=None, **kwargs):
-        "Show image using `merge(self._show_args, kwargs)`"
+        "Show audio using `merge(self._show_args, kwargs)`"
         self.hear()
         show_audio_signal(self, ctx=ctx, **kwargs)
         plt.show()
