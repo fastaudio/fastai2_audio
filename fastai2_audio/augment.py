@@ -128,7 +128,7 @@ class SignalShifter(RandTransform):
     def __init__(self, p=0.5, max_pct= 0.2, max_time=None, direction=0, roll=False):
         if direction not in [-1, 0, 1]: raise ValueError("Direction must be -1(left) 0(bidirectional) or 1(right)")
         store_attr(self, "max_pct,max_time,direction,roll")
-        super().__init__(p=p, as_item=True)
+        super().__init__(p=p)
 
     def before_call(self, b, split_idx):
         super().before_call(b, split_idx)
@@ -171,7 +171,7 @@ def apply_gain(ai:AudioTensor, gain):
 class ChangeVolume(RandTransform):
     def __init__(self, p=0.5, lower=0.5, upper=1.5):
         self.lower, self.upper = lower, upper
-        super().__init__(p=p, as_item=True)
+        super().__init__(p=p)
 
     def before_call(self, b, split_idx):
         super().before_call(b, split_idx)
@@ -194,7 +194,7 @@ def cutout(ai:AudioTensor, cut_pct):
 class SignalCutout(RandTransform):
     def __init__(self, p=0.5, max_cut_pct=0.15):
         self.max_cut_pct = max_cut_pct
-        super().__init__(p=p, as_item=True)
+        super().__init__(p=p)
 
     def before_call(self, b, split_idx):
         super().before_call(b, split_idx)
@@ -213,7 +213,7 @@ def lose_signal(ai:AudioTensor, loss_pct):
 class SignalLoss(RandTransform):
     def __init__(self, p=0.5, max_loss_pct = 0.15):
         self.max_loss_pct = max_loss_pct
-        super().__init__(p=p, as_item=True)
+        super().__init__(p=p)
 
     def before_call(self, b, split_idx):
         super().before_call(b, split_idx)
