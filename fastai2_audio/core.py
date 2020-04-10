@@ -24,12 +24,12 @@ audio_extensions = tuple(str.lower(k) for k, v in mimetypes.types_map.items() if
 
 # Cell
 def get_audio_files(path, recurse=True, folders=None):
-    "Get image files in `path` recursively, only in `folders`, if specified."
+    "Get audio files in `path` recursively, only in `folders`, if specified."
     return get_files(path, extensions=audio_extensions, recurse=recurse, folders=folders)
 
 # Cell
 def AudioGetter(suf='', recurse=True, folders=None):
-    "Create `get_image_files` partial function that searches path suffix `suf` and passes along `kwargs`, only in `folders`, if specified."
+    "Create `get_audio_files` partial function that searches path suffix `suf` and passes along `kwargs`, only in `folders`, if specified."
     def _inner(o, recurse=recurse, folders=folders):
         return get_audio_files(o/suf, recurse, folders)
     return _inner
@@ -72,7 +72,7 @@ class AudioTensor(TensorBase):
     def hear(self):
         display(Audio(self, rate=self.sr))
     def show(self, ctx=None, **kwargs):
-        "Show image using `merge(self._show_args, kwargs)`"
+        "Show audio clip using `merge(self._show_args, kwargs)`"
         self.hear()
         show_audio_signal(self, ctx=ctx, **kwargs)
         plt.show()
@@ -204,7 +204,7 @@ def SpectrogramTransformer(mel=True, to_db=True):
     return pipe_noargs
 
 def _get_transform_list(sg_type):
-    '''Builds a list of higher-order transforms with no arguments'''
+    "Builds a list of higher-order transforms with no arguments"
     transforms = L()
     if sg_type["mel"]:   transforms += _GenMelSpec
     else:                transforms += _GenSpec
@@ -212,7 +212,7 @@ def _get_transform_list(sg_type):
     return transforms
 
 def fill_pipeline(transform_list, sg_type, **kwargs):
-    '''Adds correct args to each transform'''
+    "Adds correct args to each transform"
     kwargs = _override_bad_defaults(dict(kwargs))
     function_list = L()
     settings = {}
@@ -224,7 +224,7 @@ def fill_pipeline(transform_list, sg_type, **kwargs):
     return AudioToSpec(Pipeline(function_list), settings={**sg_type, **settings})
 
 def _get_signature(transforms):
-    '''Looks at transform list and extracts all valid args for tab completion'''
+    "Looks at transform list and extracts all valid args for tab completion"
     delegations = [delegates(to=f, keep=True) for f in transforms]
     out = lambda **kwargs: None
     for d in delegations: out = d(out)

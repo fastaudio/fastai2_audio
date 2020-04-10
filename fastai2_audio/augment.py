@@ -41,7 +41,7 @@ def _merge_splits(splits, pad):
 
 def RemoveSilence(remove_type=RemoveType.Trim, threshold=20, pad_ms=20):
     def _inner(ai:AudioTensor)->AudioTensor:
-        '''Split signal at points of silence greater than 2*pad_ms '''
+        "Split signal at points of silence greater than 2*pad_ms"
         if remove_type is None: return ai
         padding = int(pad_ms/1000*ai.sr)
         if(padding > ai.nsamples): return ai
@@ -63,7 +63,7 @@ def RemoveSilence(remove_type=RemoveType.Trim, threshold=20, pad_ms=20):
 # Cell
 def Resample(sr_new):
     def _inner(ai:AudioTensor)->AudioTensor:
-        '''Resample using faster polyphase technique and avoiding FFT computation'''
+        "Resample using faster polyphase technique and avoiding FFT computation"
         if(ai.sr == sr_new): return ai
         sig_np = ai.numpy()
         sr_gcd = math.gcd(ai.sr, sr_new)
@@ -80,7 +80,7 @@ mk_class('AudioPadType', **{o:o.lower() for o in ['Zeros', 'Zeros_After', 'Repea
 # Cell
 def CropSignal(duration, pad_mode=AudioPadType.Zeros):
     def _inner(ai: AudioTensor)->AudioTensor:
-        '''Crops signal to be length specified in ms by duration, padding if needed'''
+        "Crops signal to be length specified in ms by duration, padding if needed"
         sig = ai.data
         orig_samples = ai.nsamples
         crop_samples = int((duration/1000)*ai.sr)
@@ -95,7 +95,7 @@ def CropSignal(duration, pad_mode=AudioPadType.Zeros):
 
 # Cell
 def _tfm_pad_signal(sig, width, pad_mode=AudioPadType.Zeros):
-    '''Pad spectrogram to specified width, using specified pad mode'''
+    "Pad spectrogram to specified width, using specified pad mode"
     c,x = sig.shape
     pad_m = pad_mode.lower()
     if pad_m in ["zeros", "zeros_after"]:
@@ -234,7 +234,7 @@ def DownmixMono():
 # Cell
 def CropTime(duration, pad_mode=AudioPadType.Zeros):
     def _inner(sg:AudioSpectrogram)->AudioSpectrogram:
-        '''Random crops full spectrogram to be length specified in ms by crop_duration'''
+        "Random crops full spectrogram to be length specified in ms by crop_duration"
         sr, hop = sg.sr, sg.hop_length
         w_crop = int((sr*duration)/(1000*hop))+1
         w_sg   = sg.shape[-1]
@@ -251,7 +251,7 @@ def CropTime(duration, pad_mode=AudioPadType.Zeros):
 
 # Cell
 def _tfm_pad_spectro(sg, width, pad_mode=AudioPadType.Zeros):
-    '''Pad spectrogram to specified width, using specified pad mode'''
+    "Pad spectrogram to specified width, using specified pad mode"
     c,y,x = sg.shape
     pad_m = pad_mode.lower()
     if pad_m in ["zeros", "zeros_after"]:
@@ -268,7 +268,7 @@ def _tfm_pad_spectro(sg, width, pad_mode=AudioPadType.Zeros):
 # Cell
 def MaskFreq(num_masks=1, size=20, start=None, val=None, **kwargs):
     def _inner(sg:AudioSpectrogram)->AudioSpectrogram:
-        '''Google SpecAugment time masking from https://arxiv.org/abs/1904.08779.'''
+        "Google SpecAugment time masking from https://arxiv.org/abs/1904.08779."
         nonlocal start
         channel_mean = sg.contiguous().view(sg.size(0), -1).mean(-1)[:,None,None]
         mask_val = channel_mean if val is None else val
@@ -294,7 +294,7 @@ def MaskTime(num_masks=1, size=20, start=None, val=None, **kwargs):
 
 # Cell
 def SGRoll(max_shift_pct=0.5, direction=0, **kwargs):
-    '''Shifts spectrogram along x-axis wrapping around to other side'''
+    "Shifts spectrogram along x-axis wrapping around to other side"
     if int(direction) not in [-1, 0, 1]:
         raise ValueError("Direction must be -1(left) 0(bidirectional) or 1(right)")
     def _inner(sg:AudioSpectrogram)->AudioSpectrogram:
@@ -308,7 +308,7 @@ def SGRoll(max_shift_pct=0.5, direction=0, **kwargs):
 
 # Cell
 def _torchdelta(sg:AudioSpectrogram, order=1, width=9):
-    '''Converts to numpy, takes delta and converts back to torch, needs torchification'''
+    "Converts to numpy, takes delta and converts back to torch, needs torchification"
     if(sg.shape[1] < width):
         raise ValueError(f'''Delta not possible with current settings, inputs must be wider than
         {width} columns, try setting max_to_pad to a larger value to ensure a minimum width''')
@@ -325,7 +325,7 @@ def Delta(width=9):
 
 # Cell
 def TfmResize(size, interp_mode="bilinear", **kwargs):
-    '''Temporary fix to allow image resizing transform'''
+    "Temporary fix to allow image resizing transform"
     def _inner(sg:AudioSpectrogram)->AudioSpectrogram:
         nonlocal size
         if isinstance(size, int): size = (size, size)
