@@ -2,7 +2,7 @@
 
 __all__ = ['RemoveSilence', 'Resample', 'CropSignal', 'shift_signal', 'SignalShifter', 'AddNoise', 'ChangeVolume',
            'SignalCutout', 'SignalLoss', 'DownmixMono', 'CropTime', 'MaskFreq', 'MaskTime', 'SGRoll', 'Delta',
-           'TfmResize']
+           'TfmResize', 'verify_pipeline']
 
 # Cell
 from fastai2.data.all import *
@@ -337,10 +337,11 @@ def TfmResize(size, interp_mode="bilinear", **kwargs):
         return sg
     return _inner
 
+# Cell
 def verify_pipeline(tfms, data):
     '''This method makes sure that the transformation pipeline produces a consistent tensor batch.
        It should be extended to fix edge cases for any transform.'''
-    
+
     transforms = []  # To record the applied transformation
     for t in tfms:
         if t.__module__ == 'fastai2_audio.augment':
@@ -349,34 +350,32 @@ def verify_pipeline(tfms, data):
             pass # This comes from core and converts to spectrogram
         else:
             warnings.warn('You are using a custom transformation.')
-    
+
     #  To check is Resample is used or not
     if 'Resample' not in transforms:
         warnings.warn('To make sure that all your audio files follow the same sampling rate, we recommend using `Resample` in your transformation pipeline.')
-    
+
     #  To check is CropSignal is used or not
     if 'CropSignal' not in transforms:
         warnings.warn('Please ensure that audio files are cropped to the same length, we recommend using `CropSignal` in your transformation pipeline.')
-    
+
     #  To check if more tranforms are applied after cropping
     if 'CropSignal' in transforms and transforms[-1] != 'CropSignal':
         warnings.warn('You have more transformations after CropSignal, this may lead to tensor issues later and we recommend using it just before you convert to spectrogram.')
-    
+
     #  Reading data to check for data based transforms
     if type(data) == fastcore.foundation.L:
         sample = []
         topk = 10
         for file in data[: min(topk, len(data))]:
             sample.append(AudioTensor.create(file))
-    
+
     elif type(data) == pathlib.PosixPath:
         sample = AudioTensor.create(data)
-    
+
     else:
         raise ValueError(f"Valid options for data are PosixPath or fastcore.foundation.L.")
-    
+
     #  To check if the signal is mono or not
     if len(set([s.shape[0] for s in sample])) > 1:
         warnings.warn('Your input audio signal is not mono-channel, we recommend using `DownmixMono` in your transformation pipeline.')
-
-    

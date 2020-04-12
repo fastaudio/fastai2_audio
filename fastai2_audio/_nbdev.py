@@ -41,7 +41,8 @@ index = {"audio_extensions": "00_core.ipynb",
          "MaskTime": "01_augment.ipynb",
          "SGRoll": "01_augment.ipynb",
          "Delta": "01_augment.ipynb",
-         "TfmResize": "01_augment.ipynb"}
+         "TfmResize": "01_augment.ipynb",
+         "verify_pipeline": "01_augment.ipynb"}
 
 modules = ["core.py",
            "augment.py"]
