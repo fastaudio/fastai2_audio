@@ -54,12 +54,38 @@ pip install git+https://github.com/rbracco/fastai2_audio.git</code></pre>
 git clone https://github.com/rbracco/fastai2_audio
 cd fastai2_audio
 nbdev_install_git_hooks
-pip install -e ".[dev]"</code></pre>
-<p>The final step sets up git hooks, which clean up the notebooks to remove the extraneous stuff stored in the notebooks (e.g. which cells you ran) which causes unnecessary merge conflicts.</p>
-<p>Before submitting a PR, check that the local library and notebooks match. The script <code>nbdev_diff_nbs</code> can let you know if there is a difference between the local library and the notebooks.</p>
+pip install -e .</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Contributing-to-the-library">Contributing to the library<a class="anchor-link" href="#Contributing-to-the-library"> </a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We are looking for contributors of all skill levels. If you don't have time to contribute, please at least reach out and give us some feedback on the library by posting in the <a href="https://forums.fast.ai/t/fastai-v2-audio/53535">v2 audio thread</a> or contact us via PM <a href="https://forums.fast.ai/u/baz/">@baz</a> or <a href="https://forums.fast.ai/u/MadeUpMasters/">@madeupmasters</a></p>
+<h3 id="How-to-contribute">How to contribute<a class="anchor-link" href="#How-to-contribute"> </a></h3><p>Create issues, write documentation, suggest/add features, submit PRs. We are open to anything. A good first step would be posting in the <a href="https://forums.fast.ai/t/fastai-v2-audio/53535">v2 audio thread</a> introducing yourself.</p>
+<h3 id="How-to-submit-a-PR">How to submit a PR<a class="anchor-link" href="#How-to-submit-a-PR"> </a></h3><p>The first step to create a new PR is to install <code>jupyter notebook</code> or <code>jupyterlab</code>. This library is build using <a href="https://nbdev.fast.ai/">nbdev</a>, meaning that all of the code, documentation and test is written into notebooks, and the <code>.py</code> python files, online docs and CI tests are created by nbdev based on those notebooks.</p>
+<p>All of the files that you will change are present into the <code>nbs/</code> folder. Your general workflow while developing will be:</p>
 <ul>
-<li>If you made a change to the notebooks in one of the exported cells, you can export it to the library with <code>nbdev_build_lib</code> or <code>make fastai2</code>.</li>
-<li>If you made a change to the library, you can export it back to the notebooks with <code>nbdev_update_lib</code>.</li>
+<li>Open the notebooks using jupyter</li>
+<li>Change what is present</li>
+<li>Save the file</li>
+<li>Run <code>make</code> and nbdev will update the library files, documentation and run the tests all at once</li>
+<li>Check if any errors occured while running the last step, then fix it and run <code>make</code> again</li>
+<li>Commit the changes</li>
+</ul>
+<h3 id="Advanced-PR-tips">Advanced PR tips<a class="anchor-link" href="#Advanced-PR-tips"> </a></h3><ul>
+<li><p>The command <code>nbdev_diff_nbs</code> can let you know if there is a difference between the local library and the notebooks.</p>
+</li>
+<li><p>If you made a change to the notebooks in one of the exported cells, you can update the library with <code>nbdev_build_lib</code> or <code>make fastai2</code>. Note that this command will only update the library code, so before any commit, you'll need to run <code>make</code> as usual to update the docs and run the tests.</p>
+</li>
+<li><p>If you made a change to the library, you can export it back to the notebooks with <code>nbdev_update_lib</code>.</p>
+</li>
 </ul>
 
 </div>
@@ -67,15 +93,13 @@ pip install -e ".[dev]"</code></pre>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Contributors">Contributors<a class="anchor-link" href="#Contributors"> </a></h1><p>We are looking for contributors of all skill levels. If you don't have time to contribute, please at least reach out and give us some feedback on the library by posting in the <a href="https://forums.fast.ai/t/fastai-v2-audio/53535">v2 audio thread</a> or contact us via PM <a href="https://forums.fast.ai/u/baz/">@baz</a> or <a href="https://forums.fast.ai/u/MadeUpMasters/">@madeupmasters</a></p>
-<h3 id="Active-Contributors">Active Contributors<a class="anchor-link" href="#Active-Contributors"> </a></h3><ul>
+<h1 id="Active-Contributors">Active Contributors<a class="anchor-link" href="#Active-Contributors"> </a></h1><ul>
 <li><a href="https://github.com/kevinbird15">kevinbird15</a></li>
 <li><a href="https://github.com/mogwai">mogwai</a></li>
 <li><a href="https://github.com/rbracco">rbracco</a></li>
 <li><a href="https://github.com/hiromis">Hiromis</a></li>
 <li><a href="https://github.com/scart97">scart97</a></li>
 </ul>
-<h3 id="How-to-contribute">How to contribute<a class="anchor-link" href="#How-to-contribute"> </a></h3><p>Create issues, write documentation, suggest/add features, submit PRs. We are open to anything. A good first step would be posting in the <a href="https://forums.fast.ai/t/fastai-v2-audio/53535">v2 audio thread</a> introducing yourself</p>
 
 </div>
 </div>
