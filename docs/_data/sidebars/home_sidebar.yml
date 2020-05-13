@@ -16,7 +16,7 @@ entries:
       title: Data Augmentation for Audio
       url: /augment
     - output: web,pdf
-      title: Title
+      title: 'Tutorial: Training a Voice Recognition Model'
       url: /tutorial
     output: web
     title: fastai2_audio

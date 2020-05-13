@@ -1,3 +1,5 @@
+![CI](https://github.com/rbracco/fastai2_audio/workflows/CI/badge.svg)
+
 # Fastai2 Audio
 > An audio module for v2 of fastai. We want to help you build audio machine learning applications while minimizing the need for audio domain expertise. Currently under development.
 
