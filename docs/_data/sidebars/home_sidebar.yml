@@ -10,11 +10,29 @@ entries:
       title: Overview
       url: /
     - output: web,pdf
-      title: Core
-      url: /core
+      title: Audio Signals
+      url: /Core_Signal
     - output: web,pdf
-      title: Data Augmentation for Audio
-      url: /augment
+      title: Audio Spectrograms
+      url: /Core_Spectrogram
+    - output: web,pdf
+      title: AudioConfig
+      url: /Core_Config_Pipeline
+    - output: web,pdf
+      title: Core
+      url: /Core_Index
+    - output: web,pdf
+      title: Preprocessing
+      url: /Augment_Preprocess
+    - output: web,pdf
+      title: Signal Transforms
+      url: /Augment_Signal
+    - output: web,pdf
+      title: Spectrogram Transforms
+      url: /Augment_Spectrogram
+    - output: web,pdf
+      title: Augment Pipelines
+      url: /Augment_Pipeline
     - output: web,pdf
       title: 'Tutorial: Training a Voice Recognition Model'
       url: /tutorial
