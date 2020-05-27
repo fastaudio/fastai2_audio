@@ -4,11 +4,12 @@
     "Audio Signals": "/Core_Signal",
     "Audio Spectrograms": "/Core_Spectrogram",
     "AudioConfig": "/Core_Config_Pipeline",
-    "Core": "/Core_Index",
+    "Core": "/Core_Overview",
     "Preprocessing": "/Augment_Preprocess",
     "Signal Transforms": "/Augment_Signal",
     "Spectrogram Transforms": "/Augment_Spectrogram",
     "Augment Pipelines": "/Augment_Pipeline",
+    "Augment": "/Augment_Overview",
     "Tutorial: Training a Voice Recognition Model": "/tutorial"
   }
 }

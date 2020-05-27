@@ -20,7 +20,7 @@ entries:
       url: /Core_Config_Pipeline
     - output: web,pdf
       title: Core
-      url: /Core_Index
+      url: /Core_Overview
     - output: web,pdf
       title: Preprocessing
       url: /Augment_Preprocess
@@ -33,6 +33,9 @@ entries:
     - output: web,pdf
       title: Augment Pipelines
       url: /Augment_Pipeline
+    - output: web,pdf
+      title: Augment
+      url: /Augment_Overview
     - output: web,pdf
       title: 'Tutorial: Training a Voice Recognition Model'
       url: /tutorial

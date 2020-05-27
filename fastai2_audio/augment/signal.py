@@ -4,6 +4,7 @@ __all__ = ['AudioPadType', 'NoiseColor', 'CropSignal', 'shift_signal', 'SignalSh
            'SignalCutout', 'SignalLoss', 'DownmixMono']
 
 # Cell
+from fastcore.transform import Transform
 from fastai2.data.all import *
 from ..core.all import *
 from fastai2.vision.augment import RandTransform
@@ -16,20 +17,23 @@ mk_class('AudioPadType', **{o:o.lower() for o in ['Zeros', 'Zeros_After', 'Repea
          doc="All methods of padding audio as attributes to get tab-completion and typo-proofing")
 
 # Cell
-def CropSignal(duration, pad_mode=AudioPadType.Zeros):
-    def _inner(ai: AudioTensor)->AudioTensor:
-        '''Crops signal to be length specified in ms by duration, padding if needed'''
+class CropSignal(Transform):
+    '''Crops signal to be length specified in ms by duration, padding if needed'''
+    def __init__(self, duration, pad_mode=AudioPadType.Zeros):
+        store_attr(self, "duration, pad_mode")
+
+    def encodes(self, ai: AudioTensor)->AudioTensor:
         sig = ai.data
         orig_samples = ai.nsamples
-        crop_samples = int((duration/1000)*ai.sr)
+        crop_samples = int((self.duration/1000)*ai.sr)
         if orig_samples == crop_samples: return ai
         elif orig_samples < crop_samples:
-            ai.data = _tfm_pad_signal(sig, crop_samples, pad_mode=pad_mode)
+            ai.data = _tfm_pad_signal(sig, crop_samples, pad_mode=self.pad_mode)
         else:
             crop_start = random.randint(0, int(orig_samples-crop_samples))
             ai.data = sig[:,crop_start:crop_start+crop_samples]
         return ai
-    return _inner
+
 
 # Cell
 def _tfm_pad_signal(sig, width, pad_mode=AudioPadType.Zeros):
@@ -89,15 +93,17 @@ mk_class('NoiseColor', **{o:i-2 for i,o in enumerate(['Violet', 'Blue', 'White',
          doc="All possible colors of noise as attributes to get tab-completion and typo-proofing")
 
 # Cell
-def AddNoise(noise_level=0.05, color=NoiseColor.White):
-    def _inner(ai: AudioTensor)->AudioTensor:
+class AddNoise(Transform):
+    def __init__(self, noise_level=0.05, color=NoiseColor.White):
+        store_attr(self, "noise_level, color")
+
+    def encodes(self, ai: AudioTensor)->AudioTensor:
         # if it's white noise, implement our own for speed
-        if color==0: noise = torch.randn_like(ai.data)
-        else:        noise = torch.from_numpy(cn.powerlaw_psd_gaussian(exponent=color, size=ai.nsamples)).float()
-        scaled_noise = noise * ai.data.abs().mean() * noise_level
+        if self.color==0: noise = torch.randn_like(ai.data)
+        else:        noise = torch.from_numpy(cn.powerlaw_psd_gaussian(exponent=self.color, size=ai.nsamples)).float()
+        scaled_noise = noise * ai.data.abs().mean() * self.noise_level
         ai.data += scaled_noise
         return ai
-    return _inner
 
 # Cell
 @patch
@@ -162,9 +168,7 @@ class SignalLoss(RandTransform):
 # Cell
 # downmixMono was removed from torchaudio, we now just take the mean across channels
 # this works for both batches and individual items
-def DownmixMono():
-    def _inner(ai: AudioTensor)->AudioTensor:
-        """Randomly replaces amplitude of signal with 0. Simulates analog info loss"""
+class DownmixMono(Transform):
+    def encodes(self, ai: AudioTensor)->AudioTensor:
         downmixed = ai.data.contiguous().mean(-2).unsqueeze(-2)
         return AudioTensor(downmixed, ai.sr)
-    return _inner
