@@ -56,13 +56,15 @@ class MaskFreq(Transform):
         channel_mean = sg.contiguous().view(sg.size(0), -1).mean(-1)[:,None,None]
         mask_val = ifnone(self.val, channel_mean)
         c, y, x = sg.shape
+        # Position of the first mask
+        start = ifnone(self.start, random.randint(0, y-self.size))
         for _ in range(self.num_masks):
             mask = torch.ones(self.size, x) * mask_val
-            start = ifnone(self.start, random.randint(0, y-self.size))
             if not 0 <= start <= y-self.size:
                 raise ValueError(f"Start value '{start}' out of range for AudioSpectrogram of shape {sg.shape}")
             sg[:,start:start+self.size,:] = mask
-#             start = None
+            # Setting start position for next mask
+            start = random.randint(0, y-self.size)
         return sg
 
 # Cell

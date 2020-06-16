@@ -662,7 +662,7 @@ Wall time: 348 µs
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="MaskTime" class="doc_header"><code>class</code> <code>MaskTime</code><a href="https://github.com/rbracco/fastai2_audio/tree/master/fastai2_audio/augment/spectrogram.py#L69" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>MaskTime</code>(<strong><code>num_masks</code></strong>=<em><code>1</code></em>, <strong><code>size</code></strong>=<em><code>20</code></em>, <strong><code>start</code></strong>=<em><code>None</code></em>, <strong><code>val</code></strong>=<em><code>None</code></em>, <strong>**<code>kwargs</code></strong>) :: <code>Transform</code></p>
+<h2 id="MaskTime" class="doc_header"><code>class</code> <code>MaskTime</code><a href="https://github.com/rbracco/fastai2_audio/tree/master/fastai2_audio/augment/spectrogram.py#L71" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>MaskTime</code>(<strong><code>num_masks</code></strong>=<em><code>1</code></em>, <strong><code>size</code></strong>=<em><code>20</code></em>, <strong><code>start</code></strong>=<em><code>None</code></em>, <strong><code>val</code></strong>=<em><code>None</code></em>, <strong>**<code>kwargs</code></strong>) :: <code>Transform</code></p>
 </blockquote>
 <p>Google SpecAugment time masking from <a href="https://arxiv.org/abs/1904.08779">https://arxiv.org/abs/1904.08779</a>.</p>
 
@@ -1069,7 +1069,7 @@ Wall time: 440 µs
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="SGRoll" class="doc_header"><code>class</code> <code>SGRoll</code><a href="https://github.com/rbracco/fastai2_audio/tree/master/fastai2_audio/augment/spectrogram.py#L80" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>SGRoll</code>(<strong><code>max_shift_pct</code></strong>=<em><code>0.5</code></em>, <strong><code>direction</code></strong>=<em><code>0</code></em>, <strong>**<code>kwargs</code></strong>) :: <code>Transform</code></p>
+<h2 id="SGRoll" class="doc_header"><code>class</code> <code>SGRoll</code><a href="https://github.com/rbracco/fastai2_audio/tree/master/fastai2_audio/augment/spectrogram.py#L82" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>SGRoll</code>(<strong><code>max_shift_pct</code></strong>=<em><code>0.5</code></em>, <strong><code>direction</code></strong>=<em><code>0</code></em>, <strong>**<code>kwargs</code></strong>) :: <code>Transform</code></p>
 </blockquote>
 <p>Shifts spectrogram along x-axis wrapping around to other side</p>
 
@@ -1276,7 +1276,7 @@ Wall time: 822 µs
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="Delta" class="doc_header"><code>class</code> <code>Delta</code><a href="https://github.com/rbracco/fastai2_audio/tree/master/fastai2_audio/augment/spectrogram.py#L103" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>Delta</code>(<strong><code>width</code></strong>=<em><code>9</code></em>) :: <code>Transform</code></p>
+<h2 id="Delta" class="doc_header"><code>class</code> <code>Delta</code><a href="https://github.com/rbracco/fastai2_audio/tree/master/fastai2_audio/augment/spectrogram.py#L105" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>Delta</code>(<strong><code>width</code></strong>=<em><code>9</code></em>) :: <code>Transform</code></p>
 </blockquote>
 <p>Delegates (<code>__call__</code>,<code>decode</code>,<code>setup</code>) to (<code>encodes</code>,<code>decodes</code>,<code>setups</code>) if <code>split_idx</code> matches</p>
 
@@ -1496,7 +1496,7 @@ Wall time: 4.56 ms
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="TfmResize" class="doc_header"><code>class</code> <code>TfmResize</code><a href="https://github.com/rbracco/fastai2_audio/tree/master/fastai2_audio/augment/spectrogram.py#L113" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>TfmResize</code>(<strong><code>size</code></strong>, <strong><code>interp_mode</code></strong>=<em><code>'bilinear'</code></em>, <strong>**<code>kwargs</code></strong>) :: <code>Transform</code></p>
+<h2 id="TfmResize" class="doc_header"><code>class</code> <code>TfmResize</code><a href="https://github.com/rbracco/fastai2_audio/tree/master/fastai2_audio/augment/spectrogram.py#L115" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>TfmResize</code>(<strong><code>size</code></strong>, <strong><code>interp_mode</code></strong>=<em><code>'bilinear'</code></em>, <strong>**<code>kwargs</code></strong>) :: <code>Transform</code></p>
 </blockquote>
 <p>Temporary fix to allow image resizing transform</p>
 
