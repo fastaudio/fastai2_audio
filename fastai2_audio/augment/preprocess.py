@@ -3,6 +3,7 @@
 __all__ = ['RemoveSilence', 'Resample']
 
 # Cell
+from fastcore.transform import Transform
 from fastai2.data.all import *
 from ..core.all import *
 from fastai2.vision.augment import RandTransform
@@ -29,36 +30,41 @@ def _merge_splits(splits, pad):
         i+=1
     return np.stack(merged)
 
-def RemoveSilence(remove_type=RemoveType.Trim, threshold=20, pad_ms=20):
-    def _inner(ai:AudioTensor)->AudioTensor:
-        '''Split signal at points of silence greater than 2*pad_ms '''
-        if remove_type is None: return ai
-        padding = int(pad_ms/1000*ai.sr)
+class RemoveSilence(Transform):
+    '''Split signal at points of silence greater than 2*pad_ms '''
+    def __init__(self, remove_type=RemoveType.Trim, threshold=20, pad_ms=20):
+        store_attr(self, "remove_type, threshold, pad_ms")
+
+    def encodes(self, ai:AudioTensor)->AudioTensor:
+        if self.remove_type is None: return ai
+        padding = int(self.pad_ms/1000*ai.sr)
         if(padding > ai.nsamples): return ai
-        splits = split(ai.numpy(), top_db=threshold, hop_length=padding)
-        if remove_type == "split":
+        splits = split(ai.numpy(), top_db=self.threshold, hop_length=padding)
+        if self.remove_type == "split":
             sig =  [ai[:,(max(a-padding,0)):(min(b+padding,ai.nsamples))]
                     for (a, b) in _merge_splits(splits, padding)]
-        elif remove_type == "trim":
+        elif self.remove_type == "trim":
             sig = [ai[:,(max(splits[0, 0]-padding,0)):splits[-1, -1]+padding]]
-        elif remove_type == "all":
+        elif self.remove_type == "all":
             sig = [torch.cat([ai[:,(max(a-padding,0)):(min(b+padding,ai.nsamples))]
                               for (a, b) in _merge_splits(splits, padding)], dim=1)]
         else:
-            raise ValueError(f"Valid options for silence removal are None, 'split', 'trim', 'all' not '{remove_type}'.")
+            raise ValueError(f"Valid options for silence removal are None, 'split', 'trim', 'all' not '{self.remove_type}'.")
         ai.data = torch.cat(sig, dim=-1)
         return ai
-    return _inner
+
 
 # Cell
-def Resample(sr_new):
-    def _inner(ai:AudioTensor)->AudioTensor:
-        '''Resample using faster polyphase technique and avoiding FFT computation'''
-        if(ai.sr == sr_new): return ai
+class Resample(Transform):
+    '''Resample using faster polyphase technique and avoiding FFT computation'''
+    def __init__(self, sr_new):
+        self.sr_new = sr_new
+
+    def encodes(self, ai:AudioTensor)->AudioTensor:
+        if(ai.sr == self.sr_new): return ai
         sig_np = ai.numpy()
-        sr_gcd = math.gcd(ai.sr, sr_new)
-        resampled = resample_poly(sig_np, int(sr_new/sr_gcd), int(ai.sr/sr_gcd), axis=-1)
+        sr_gcd = math.gcd(ai.sr, self.sr_new)
+        resampled = resample_poly(sig_np, int(self.sr_new/sr_gcd), int(ai.sr/sr_gcd), axis=-1)
         ai.data = torch.from_numpy(resampled.astype(np.float32))
-        ai.sr = sr_new
+        ai.sr = self.sr_new
         return ai
-    return _inner
