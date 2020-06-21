@@ -41,7 +41,9 @@ def tar_extract_at_filename(fname, dest):
 class AudioTensor(TensorBase):
     @classmethod
     @delegates(torchaudio.load, keep=True)
-    def create(cls, fn, **kwargs):
+    def create(cls, fn, cache_folder=None, **kwargs):
+        if cache_folder is not None:
+            fn = cache_folder / fn.name
         sig, sr = torchaudio.load(fn, **kwargs)
         return cls(sig, sr=sr)
 
