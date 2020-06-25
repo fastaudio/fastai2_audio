@@ -26,7 +26,7 @@ def audio_item_tfms(sample_rate=16000, force_mono=True, crop_signal_to=None):
         tfms.append(DownmixMono())
     if crop_signal_to is not None:
         tfms.append(CropSignal(duration=crop_signal_to))
-    return Pipeline(tfms)
+    return tfms
 
 # Cell
 class PreprocessAudio:
@@ -35,7 +35,7 @@ class PreprocessAudio:
     """
     @delegates(audio_item_tfms)
     def __init__(self, **kwargs):
-        self.tfms = audio_item_tfms(**kwargs)
+        self.tfms = Pipeline(audio_item_tfms(**kwargs))
     def __call__(self, x):
         audio = AudioTensor.create(x)
         return self.tfms(audio)
@@ -63,7 +63,7 @@ class AudioBlock(TransformBlock):
     @delegates(audio_item_tfms)
     def __init__(self, cache_folder=None, **kwargs):
         item_tfms = audio_item_tfms(**kwargs)
-        type_tfm = partial(AudioTensor.create, cache_folder)
+        type_tfm = partial(AudioTensor.create, cache_folder=cache_folder)
         return super().__init__(type_tfms=type_tfm,
                                 item_tfms=item_tfms,
                                 batch_tfms=IntToFloatTensor)
