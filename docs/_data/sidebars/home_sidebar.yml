@@ -16,7 +16,7 @@ entries:
       title: Audio Spectrograms
       url: /Core_Spectrogram
     - output: web,pdf
-      title: AudioConfig
+      title: AudioBlock
       url: /Core_Config_Pipeline
     - output: web,pdf
       title: Core

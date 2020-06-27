@@ -6,7 +6,8 @@ __all__ = ['AudioPadType', 'NoiseColor', 'CropSignal', 'shift_signal', 'SignalSh
 # Cell
 from fastcore.transform import Transform
 from fastai2.data.all import *
-from ..core.all import *
+from ..core.signal import *
+from ..core.spectrogram import *
 from fastai2.vision.augment import RandTransform
 
 # Cell
