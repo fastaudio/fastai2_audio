@@ -36,7 +36,7 @@ class AudioSpectrogram(TensorImageBase):
         raise AttributeError(f"{self.__class__.__name__} object has no attribute {name}")
 
     def show(self, ctx=None, ax=None, figsize=None, **kwargs):
-        show_spectrogram(self, ctx=ctx, ax=ax, figsize=figsize,**kwargs)
+        show_spectrogram(self, ctx=ctx, ax=ax, figsize=figsize, **kwargs)
         plt.show()
 
 # Cell
@@ -46,6 +46,7 @@ def show_spectrogram(sg, ax, ctx, figsize, **kwargs):
     r, c = nchannels, sg.data.shape[0]//nchannels
     proper_kwargs = get_usable_kwargs(specshow, sg._settings, exclude=["ax", "kwargs", "data",])
     if (r == 1 and c == 1):
+        if ax is None: _,ax = plt.subplots(1, 1, figsize=figsize)
         _show_spectrogram(sg, ax, proper_kwargs, **kwargs)
         plt.title("Channel 0 Image 0: {} X {}px".format(*sg.shape[-2:]))
     else:
