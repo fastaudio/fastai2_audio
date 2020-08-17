@@ -14,6 +14,9 @@ from fastai2.vision.augment import RandTransform
 import colorednoise as cn
 
 # Cell
+#nbdev_comment _all_ = ["AudioPadType", "NoiseColor"]
+
+# Cell
 mk_class('AudioPadType', **{o:o.lower() for o in ['Zeros', 'Zeros_After', 'Repeat']},
          doc="All methods of padding audio as attributes to get tab-completion and typo-proofing")
 
