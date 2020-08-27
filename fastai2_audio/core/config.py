@@ -4,7 +4,7 @@ __all__ = ['audio_item_tfms', 'PreprocessAudio', 'preprocess_audio_folder', 'Aud
            'AudioConfig']
 
 # Cell
-from fastai2.data.all import *
+from fastai.data.all import *
 from .signal import *
 from .spectrogram import *
 from ..augment.preprocess import Resample

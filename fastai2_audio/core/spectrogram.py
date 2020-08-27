@@ -5,7 +5,7 @@ __all__ = ['AudioSpectrogram', 'show_spectrogram', 'AudioToSpec', 'SpectrogramTr
 
 # Cell
 from .signal import *
-from fastai2.data.all import *
+from fastai.data.all import *
 import torchaudio
 from inspect import signature
 from librosa.display import specshow

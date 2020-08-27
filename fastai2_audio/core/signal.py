@@ -4,8 +4,8 @@ __all__ = ['audio_extensions', 'get_audio_files', 'AudioGetter', 'tar_extract_at
            'show_audio_signal', 'OpenAudio']
 
 # Cell
-from fastai2.torch_basics import *
-from fastai2.data.all import *
+from fastai.torch_basics import *
+from fastai.data.all import *
 import torchaudio
 
 from IPython.display import display, Audio

@@ -4,9 +4,9 @@ __all__ = ['RemoveSilence', 'Resample']
 
 # Cell
 from fastcore.transform import Transform
-from fastai2.data.all import *
+from fastai.data.all import *
 from ..core.signal import *
-from fastai2.vision.augment import RandTransform
+from fastai.vision.augment import RandTransform
 
 # Cell
 from librosa.effects import split
