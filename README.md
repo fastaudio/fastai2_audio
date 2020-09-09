@@ -3,11 +3,6 @@
 # Fastai2 Audio
 > An audio module for v2 of fastai. We want to help you build audio machine learning applications while minimizing the need for audio domain expertise. Currently under development.
 
-# IMPORTANT
-
-This version of the library is no longer being supported. The new library doesn't use nbdev:
-
-https://github.com/fastaudio/fastaudio 
 
 # Quick Start
 
