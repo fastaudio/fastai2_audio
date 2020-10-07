@@ -5,13 +5,16 @@ __all__ = ['AudioPadType', 'NoiseColor', 'CropSignal', 'shift_signal', 'SignalSh
 
 # Cell
 from fastcore.transform import Transform
-from fastai2.data.all import *
+from fastai.data.all import *
 from ..core.signal import *
 from ..core.spectrogram import *
-from fastai2.vision.augment import RandTransform
+from fastai.vision.augment import RandTransform
 
 # Cell
 import colorednoise as cn
+
+# Cell
+#nbdev_comment _all_ = ["AudioPadType", "NoiseColor"]
 
 # Cell
 mk_class('AudioPadType', **{o:o.lower() for o in ['Zeros', 'Zeros_After', 'Repeat']},

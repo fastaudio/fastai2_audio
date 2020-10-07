@@ -1,6 +1,6 @@
-from fastai2.data.all import *
+from fastai.data.all import *
 from fastai2_audio.core.all import *
-from fastai2.vision.augment import RandTransform
+from fastai.vision.augment import RandTransform
 
 __all__ = ["ex_files", "GenExample", "show_transform"]
 
